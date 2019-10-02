@@ -1,22 +1,24 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 
 class Cashflow(object):
 
-    def __init__(self, amount, t):
-        self.amount = amount
-        self.t = t
+    def _init_(self, **kwargs):
+        self.amount = kwargs['amount']
+        self.t = kwargs['t']
 
     def present_value(self, interest_rate):
-        return self.amount * (1+interest_rate) ** (-self.t)
+        pv = self.amount/((1 + interest_rate)**self.t)
+        return pv
 
 
 class InvestmentProject(object):
     RISK_FREE_RATE = 0.08
 
-    def __init__(self, cashflows, hurdle_rate=RISK_FREE_RATE):
+    def _init_(self, cashflows, hurdle_rate=RISK_FREE_RATE):
         cashflows_positions = {str(flow.t): flow for flow in cashflows}
         self.cashflow_max_position = max((flow.t for flow in cashflows))
         self.cashflows = []
@@ -34,31 +36,33 @@ class InvestmentProject(object):
         return np.irr([flow.amount for flow in self.cashflows])
 
     def plot(self, show=False):
-        df = self.cashflows()
-        plot = df.plot.bar(x="t", y=["amount"], stacked=True)
-        fig = plot.get_figure()
-        if not show:
+        _amount_ = []
+        _t_ = []
+        for obj in self.cashflows:
+            _amount_.append(obj.amount)
+            _t_.append(obj.t)
+        fig = plt.figure(1)
+        plt.bar(np.arange(len(_amount_)), _amount_)
+        plt.xticks(np.arange(len(_t_)), _t_)
+        plt.title('CashFlow')
+        plt.xlabel('t')
+        plt.ylabel('amount')
+        if show:
             plt.show()
-            return fig
-        else:
-            pass
+        return fig
 
     def net_present_value(self, interest_rate=None):
-        new_flow = [i * ((1+interest_rate) ** (-self.t)) for i in self.cashflows]
-        ano_flow = [i * ((1+hurdle_rate) ** (-self.t)) for i in self.cashflows]
         npv = 0
-        for m in range(0, len(self.cashflows)):
-            if not interest_rate:
-                npv = np.int(new_flow[m]) + npv
-            else:
-                npv = np.int(ano_flow[m]) + npv
+        if interest_rate:
+            interest_rate = self.hurdle_rate
+        for i in self.cashflows:
+            npv = npv + i.present_value(interest_rate=interest_rate)
         return npv
 
     def equivalent_annuity(self, interest_rate=None):
-        if not interest_rate:
-            annuity = self.interest * npv / (1 - (1 + hurdle_rate) ** (-self.n))
-        else:
-            annuity = self.interest * npv / (1 - (1 + interest_rate) ** (-self.n))
+        if interest_rate:
+            interest_rate = self.hurdle_rate
+        annuity = (self.net_present_value(interest_rate)*interest_rate)/(1-(1 + interest_rate)**(-self.cashflow_max_position))
         return annuity
 
     def describe(self):
