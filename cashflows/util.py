@@ -6,7 +6,7 @@ import math
 
 class Cashflow(object):
 
-    def _init_(self, **kwargs):
+    def __init__(self, **kwargs):
         self.amount = kwargs['amount']
         self.t = kwargs['t']
 
@@ -18,7 +18,7 @@ class Cashflow(object):
 class InvestmentProject(object):
     RISK_FREE_RATE = 0.08
 
-    def _init_(self, cashflows, hurdle_rate=RISK_FREE_RATE):
+    def __init__(self, cashflows, hurdle_rate=RISK_FREE_RATE):
         cashflows_positions = {str(flow.t): flow for flow in cashflows}
         self.cashflow_max_position = max((flow.t for flow in cashflows))
         self.cashflows = []
@@ -53,14 +53,14 @@ class InvestmentProject(object):
 
     def net_present_value(self, interest_rate=None):
         npv = 0
-        if interest_rate:
+        if interest_rate is None:
             interest_rate = self.hurdle_rate
         for i in self.cashflows:
             npv = npv + i.present_value(interest_rate=interest_rate)
         return npv
 
     def equivalent_annuity(self, interest_rate=None):
-        if interest_rate:
+        if not interest_rate:
             interest_rate = self.hurdle_rate
         annuity = (self.net_present_value(interest_rate)*interest_rate)/(1-(1 + interest_rate)**(-self.cashflow_max_position))
         return annuity

@@ -17,7 +17,6 @@ class Main(object):
 
     @staticmethod
     def plot_investment(filepath, save="", show=False):
-        print('Tamara')
         invest = InvestmentProject.from_csv(filepath=filepath)
         fig = invest.plot(show=show)
         if save:
