@@ -1,20 +1,20 @@
 import random
 
 class Door(object):
-    def _init_(self, value):
+    def __init__(self, value):
         self.value = value
-    def _repr_(self):
+    def __repr__(self):
         return "Door({value})".format(value=self.value)
 
 
 class Game(object):
 
-    def _init_(self, winning_door_name, options, default_choice=None):
+    def __init__(self, winning_door_name, options, default_choice=None):
         self.default_choice = default_choice if default_choice is not None else random.choice(list(options.keys()))
         self.winning_door_name = winning_door_name
         self.options = options
 
-    def _repr_(self):
+    def __repr__(self):
         return "Game Configuration:\n\t{doors}".format(
             doors="\n\t".join(["{} -> {}".format(name, door) for name, door in self.options.items()])
         )
@@ -37,7 +37,7 @@ class Game(object):
 
 class Host(object):
 
-    def _init_(self, manage_game):
+    def __init__(self, manage_game):
         self.game_evolution = [manage_game]
 
     def get_game(self, t):
@@ -80,7 +80,7 @@ class Guest(object):
         CHANGE = "change"
         all = [RANDOM, STAY, CHANGE]
 
-    def _init_(self):
+    def __init__(self):
         self.memory = []
 
     def get_latest_choice(self):
